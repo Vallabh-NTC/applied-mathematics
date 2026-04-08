@@ -29,10 +29,14 @@ mpl.rcParams.update({
 PASCAL_MAX_N = 3
 
 # Positive side: 2.5, 5.5, 8.5, ..., 38.5
-POSITIVE_ALPHAS = [2.5 + 3*k for k in range(13)]   # up to 38.5
+POSITIVE_ALPHAS = [2.5 + 3 * k for k in range(13)]
 
-# Negative side
-NEGATIVE_ALPHAS = [-1.5, -2.5, -5.5, -8.5]
+# Negative side: -1.5, -2.5, -5.5, -8.5, -11.5, ..., -38.5
+NEGATIVE_ALPHAS = [-1.5, -2.5] + [-(2.5 + 3 * k) for k in range(0, 13)]
+
+# Remove duplicates while preserving order
+seen = set()
+NEGATIVE_ALPHAS = [a for a in NEGATIVE_ALPHAS if not (a in seen or seen.add(a))]
 
 # Extra irrational example
 EXTRA_ALPHAS = [math.pi]
@@ -95,9 +99,9 @@ def format_alpha(alpha):
 def draw_plot(ax, newton_terms):
     ax.cla()
     ax.set_facecolor("black")
-    ax.tick_params(axis='x', colors='white')
-    ax.tick_params(axis='y', colors='white')
-    ax.tick_params(axis='z', colors='white')
+    ax.tick_params(axis="x", colors="white")
+    ax.tick_params(axis="y", colors="white")
+    ax.tick_params(axis="z", colors="white")
 
     try:
         ax.xaxis.pane.set_color((0, 0, 0, 1))
@@ -136,12 +140,12 @@ def draw_plot(ax, newton_terms):
                 color="white"
             )
 
-        ax.plot(
-            row_x, row_y, row_z,
-            linewidth=1.6,
-            color="cyan",
-            alpha=0.85
-        )
+        #ax.plot(
+        #    row_x, row_y, row_z,
+        #    linewidth=1.6,
+        #    color="cyan",
+        #    alpha=0.85
+        #)
 
     ax.scatter(
         pascal_x, pascal_y, pascal_z,
@@ -175,7 +179,6 @@ def draw_plot(ax, newton_terms):
             all_y.append(y_exp)
             all_z.append(z_val)
 
-            # Only label the first few terms to avoid clutter
             if r < 5:
                 z_offset = 0.08 if z_val >= 0 else -0.12
                 ax.text(
@@ -185,16 +188,16 @@ def draw_plot(ax, newton_terms):
                     color=color
                 )
 
-        ax.plot(
-            newton_x, newton_y, newton_z,
-            linewidth=1.8,
-            color=color,
-            alpha=0.95
-        )
+        #ax.plot(
+        #    newton_x, newton_y, newton_z,
+        #    linewidth=1.6,
+        #    color=color,
+        #    alpha=0.92
+        #)
 
         ax.scatter(
             newton_x, newton_y, newton_z,
-            s=40,
+            s=34,
             color=color,
             label=fr"Newton $\alpha = {format_alpha(alpha)}$"
         )
@@ -222,15 +225,13 @@ def draw_plot(ax, newton_terms):
 
     ax.view_init(elev=24, azim=38)
     ax.grid(True, alpha=0.2)
-
-    # legend gets huge, so make it compact
-    ax.legend(loc="upper left", fontsize=7, ncol=2)
+    ax.legend(loc="upper left", fontsize=6, ncol=3)
 
 
 # ============================================================
 # Figure + axis + slider
 # ============================================================
-fig = plt.figure(figsize=(16, 10))
+fig = plt.figure(figsize=(17, 10))
 fig.patch.set_facecolor("black")
 
 ax = fig.add_subplot(111, projection="3d")
